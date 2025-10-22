@@ -260,8 +260,12 @@ def format_market_cap(market_cap):
 
 def render_stock_card(stock):
     change = stock["change"]
-    is_gainer = change > 0.005
-    is_loser = change < -0.005
+    percent_change = stock["percentChange"]
+    
+    # Determine if it's a gainer or loser based on percentage change
+    is_gainer = percent_change > 0.005  # Use percentage change, not absolute change
+    is_loser = percent_change < -0.005
+    
     delta_color = "inverse" if is_loser else "normal" if is_gainer else "off"
     
     # Use a simple container without border parameter
@@ -273,8 +277,14 @@ def render_stock_card(stock):
         with col_price:
             st.metric(label="Prix", value=f"{stock['price']:.2f} MAD", label_visibility="collapsed")
         with col_change:
-            st.metric(label="Changement", value=f"{abs(stock['percentChange']):.2f}%", 
-                     delta=f"{change:.2f} MAD", delta_color=delta_color, label_visibility="collapsed")
+            # For negative changes, show red; for positive, show green
+            st.metric(
+                label="Changement", 
+                value=f"{abs(percent_change):.2f}%", 
+                delta=f"{change:.2f} MAD", 
+                delta_color=delta_color, 
+                label_visibility="collapsed"
+            )
         
         col_mcap, col_pe = st.columns(2)
         with col_mcap:
@@ -283,7 +293,6 @@ def render_stock_card(stock):
             pe_ratio = stock.get('pe_ratio')
             pe_display = f"{pe_ratio:.1f}" if pe_ratio is not None else "N/A"
             st.metric(label="Ratio P/E", value=pe_display, label_visibility="visible")
-    
     st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Advanced Visualization Functions ---
@@ -645,4 +654,5 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
+
 
