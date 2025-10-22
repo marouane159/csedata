@@ -381,7 +381,7 @@ def create_top_performers_chart(df, top_n=10):
                     row=1, col=2)
     
     fig.update_yaxes(automargin=True) 
-    fig.update_layout(height=450, showlegend=False, title_text=f"Top {top_n} Performers")
+    fig.update_layout(height=450, showlegend=False, title_text=f"BEST/WORST {top_n} marchés")
     return fig
 
 # --- Main app function ---
