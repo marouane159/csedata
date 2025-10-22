@@ -11,7 +11,8 @@ from plotly.subplots import make_subplots
 import numpy as np
 
 # --- Page config must be the first Streamlit command ---
-st.set_page_config(layout="wide", page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦")
+# Streamlit's default or "centered" is usually better for mobile.
+st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦")
 
 # --- Configuration & Data ---
 BASE_STOCKS = [
@@ -78,7 +79,7 @@ BASE_STOCKS = [
     {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Finance"}
 ]
 
-# --- Parsing Helper Functions ---
+# --- Parsing Helper Functions (No change needed) ---
 def _parse_price(text: str) -> float | None:
     cleaned = (
         text.replace("MAD", "").replace("\u202f", "").replace(" ", "").replace(",", "").strip()
@@ -126,7 +127,7 @@ def _parse_pe_ratio(text: str) -> float | None:
     except Exception:
         return None
 
-# --- Data Scraping ---
+# --- Data Scraping (No change needed) ---
 @st.cache_data(ttl=900)
 def get_moroccan_stocks() -> pd.DataFrame | None:
     try:
@@ -202,7 +203,7 @@ def get_moroccan_stocks() -> pd.DataFrame | None:
     except Exception:
         return None
 
-# --- Enhanced Data Management ---
+# --- Enhanced Data Management (No change needed) ---
 def load_stock_data():
     scraped_df = get_moroccan_stocks()
     st.session_state.is_live_data = (scraped_df is not None and not scraped_df.empty)
@@ -260,42 +261,53 @@ def format_market_cap(market_cap):
 
 def render_stock_card(stock):
     change = stock["change"]
-    percent_change = stock["percentChange"]
+    is_gainer = change > 0.005
+    is_loser = change < -0.005
     
-    # Determine if it's a gainer or loser based on percentage change
-    is_gainer = percent_change > 0.005  # Use percentage change, not absolute change
-    is_loser = percent_change < -0.005
+    # --- FIX APPLIED HERE ---
+    # Use "normal" color for both gainers and losers. 
+    # "normal" means positive delta is green, negative delta is red.
+    delta_color = "normal" if (is_gainer or is_loser) else "off"
+    # --- END FIX ---
     
-    delta_color = "inverse" if is_loser else "normal" if is_gainer else "off"
+    # Use CSS for border instead of container border parameter
+    st.markdown("""
+        <style>
+            .stock-card {
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 12px;
+                margin: 8px 0;
+                background-color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+        </style>
+    """, unsafe_allow_html=True)
     
-    # Use a simple container without border parameter
-    with st.container():
-        st.markdown(f"**{stock['symbol']}** <span style='font-size: 0.75rem; color: #6B7280;'>({stock['sector']})</span>", unsafe_allow_html=True)
-        st.caption(f"{stock['name']}")
-        
-        col_price, col_change = st.columns(2)
-        with col_price:
-            st.metric(label="Prix", value=f"{stock['price']:.2f} MAD", label_visibility="collapsed")
-        with col_change:
-            # For negative changes, show red; for positive, show green
-            st.metric(
-                label="Changement", 
-                value=f"{abs(percent_change):.2f}%", 
-                delta=f"{change:.2f} MAD", 
-                delta_color=delta_color, 
-                label_visibility="collapsed"
-            )
-        
-        col_mcap, col_pe = st.columns(2)
-        with col_mcap:
-            st.metric(label="Capitalisation", value=stock.get('market_cap_formatted', 'N/A'), label_visibility="visible")
-        with col_pe:
-            pe_ratio = stock.get('pe_ratio')
-            pe_display = f"{pe_ratio:.1f}" if pe_ratio is not None else "N/A"
-            st.metric(label="Ratio P/E", value=pe_display, label_visibility="visible")
+    st.markdown('<div class="stock-card">', unsafe_allow_html=True)
+    
+    st.markdown(f"**{stock['symbol']}** <span style='font-size: 0.75rem; color: #6B7280;'>({stock['sector']})</span>", unsafe_allow_html=True)
+    st.caption(f"{stock['name']}")
+    
+    col_price, col_change = st.columns(2)
+    with col_price:
+        st.metric(label="Prix", value=f"{stock['price']:.2f} MAD", label_visibility="collapsed")
+    with col_change:
+        # The delta value has the correct sign (positive/negative), so "normal" coloring will work.
+        st.metric(label="Changement", value=f"{abs(stock['percentChange']):.2f}%", 
+                    delta=f"{change:.2f} MAD", delta_color=delta_color, label_visibility="collapsed")
+    
+    col_mcap, col_pe = st.columns(2)
+    with col_mcap:
+        st.metric(label="Capitalisation", value=stock.get('market_cap_formatted', 'N/A'), label_visibility="visible")
+    with col_pe:
+        pe_ratio = stock.get('pe_ratio')
+        pe_display = f"{pe_ratio:.1f}" if pe_ratio is not None else "N/A"
+        st.metric(label="Ratio P/E", value=pe_display, label_visibility="visible")
+    
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- Advanced Visualization Functions ---
+# --- Advanced Visualization Functions (No change needed) ---
 def create_market_overview_charts(df):
     # Market sentiment gauge
     avg_change = df['percentChange'].mean()
@@ -333,18 +345,18 @@ def create_sector_performance_chart(df):
     sector_perf.columns = ['Secteur', 'Changement Moyen %', 'Nombre Actions', 'Capitalisation Totale']
     
     fig = px.bar(sector_perf, x='Secteur', y='Changement Moyen %',
-                 title='Performance par Secteur (Changement Moyen %)',
-                 color='Changement Moyen %',
-                 color_continuous_scale='RdYlGn')
+                    title='Performance par Secteur (Changement Moyen %)',
+                    color='Changement Moyen %',
+                    color_continuous_scale='RdYlGn')
     
     fig.update_layout(xaxis_tickangle=-45, height=400)
     return fig
 
 def create_market_cap_bubble_chart(df):
     fig = px.scatter(df, x='percentChange', y='price', size='market_cap',
-                     color='sector', hover_name='symbol',
-                     title='Capitalisation vs Performance',
-                     labels={'percentChange': 'Changement Quotidien (%)', 'price': 'Prix (MAD)'})
+                        color='sector', hover_name='symbol',
+                        title='Capitalisation vs Performance',
+                        labels={'percentChange': 'Changement Quotidien (%)', 'price': 'Prix (MAD)'})
     
     fig.update_layout(height=500, showlegend=True)
     return fig
@@ -354,8 +366,8 @@ def create_pe_ratio_analysis(df):
     
     if len(pe_stocks) > 0:
         fig = px.histogram(pe_stocks, x='pe_ratio', nbins=20,
-                          title='Distribution des Ratios P/E',
-                          labels={'pe_ratio': 'Ratio P/E'})
+                            title='Distribution des Ratios P/E',
+                            labels={'pe_ratio': 'Ratio P/E'})
         fig.update_layout(height=400)
         return fig
     return None
@@ -367,14 +379,15 @@ def create_top_performers_chart(df, top_n=10):
     fig = make_subplots(rows=1, cols=2, subplot_titles=('Meilleurs Performers', 'Moins Bon Performers'))
     
     fig.add_trace(go.Bar(x=top_gainers['percentChange'], y=top_gainers['symbol'],
-                         orientation='h', marker_color='green', name='Gagnants'),
-                  row=1, col=1)
+                            orientation='h', marker_color='green', name='Gagnants'),
+                    row=1, col=1)
     
     fig.add_trace(go.Bar(x=top_losers['percentChange'], y=top_losers['symbol'],
-                         orientation='h', marker_color='red', name='Perdants'),
-                  row=1, col=2)
+                            orientation='h', marker_color='red', name='Perdants'),
+                    row=1, col=2)
     
-    fig.update_layout(height=400, showlegend=False, title_text=f"Top {top_n} Performers")
+    fig.update_yaxes(automargin=True) 
+    fig.update_layout(height=450, showlegend=False, title_text=f"Top {top_n} Performers")
     return fig
 
 # --- Main app function ---
@@ -416,11 +429,20 @@ def main():
                 color: #6B7280;
                 margin-bottom: 1rem;
             }
+            /* Small screen optimization for metrics */
+            .stMetric > div:nth-child(1) { /* Label */
+                font-size: 0.8rem;
+                color: #4B5563;
+                margin-bottom: 0.2rem;
+            }
+            .stMetric > div:nth-child(2) > div:nth-child(1) { /* Value */
+                font-size: 1.2rem;
+            }
         </style>
     """, unsafe_allow_html=True)
 
-    # Header
-    col1, col2, col3 = st.columns([3, 1, 1])
+    # Header - Stack title and refresh button on mobile
+    col1, col3 = st.columns([3, 1])
     
     with col1:
         st.markdown('<div class="main-header">RISK NETWORK DATA ANALYTICS</div>', unsafe_allow_html=True)
@@ -429,8 +451,9 @@ def main():
         st.markdown(f"**{status_text}** | Dernière Mise à Jour: {st.session_state.last_updated.strftime('%H:%M:%S')}")
     
     with col3:
+        st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
         button_label = "🔄 Actualisation..." if st.session_state.is_loading else "Actualiser les données"
-        st.button(button_label, on_click=refresh_data, disabled=st.session_state.is_loading, type="primary")
+        st.button(button_label, on_click=refresh_data, disabled=st.session_state.is_loading, type="primary", use_container_width=True)
 
     st.markdown("---")
 
@@ -440,53 +463,45 @@ def main():
         
     df = pd.DataFrame(st.session_state.stocks)
     
-    # Key Metrics Overview
+    # Key Metrics Overview - Reduced 5 columns to 3 for better mobile fit
     st.markdown("Vue globale du marché")
     
-    col1, col2, col3, col4, col5 = st.columns(5)
+    col_a, col_b, col_c = st.columns(3) 
     
-    with col1:
+    with col_a:
         total_mcap = df['market_cap'].sum() if df['market_cap'].notna().any() else 0
         st.metric("Capitalisation Totale", format_market_cap(total_mcap))
     
-    with col2:
+    with col_b:
         avg_change = df['percentChange'].mean()
         st.metric("Changement Moyen", f"{avg_change:.2f}%")
+        
+    with col_c:
+        stocks_with_pe = df['pe_ratio'].notna().sum()
+        st.metric("Actions avec P/E", f"{stocks_with_pe}/{len(df)}")
     
-    with col3:
+    col_d, col_e, _ = st.columns([1, 1, 1]) 
+    
+    with col_d:
         gainers = len(df[df['percentChange'] > 0])
         st.metric("Actions en Hausse", gainers)
     
-    with col4:
+    with col_e:
         losers = len(df[df['percentChange'] < 0])
         st.metric("Actions en Baisse", losers)
-    
-    with col5:
-        stocks_with_pe = df['pe_ratio'].notna().sum()
-        st.metric("Actions avec P/E", f"{stocks_with_pe}/{len(df)}")
 
-    # Advanced Charts Section
-    st.markdown("## 📊 Analytics Avancés")
+    # Advanced Charts Section - Charts stack vertically for mobile
+    st.markdown("Analytics Avancés")
     
     tab1, tab2, tab3, tab4 = st.tabs(["Sentiment Marché", "Analyse Sectorielle", "Métriques Valorisation", "Top Performers"])
     
     with tab1:
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.plotly_chart(create_market_overview_charts(df), use_container_width=True)
-        
-        with col2:
-            st.plotly_chart(create_top_performers_chart(df, 8), use_container_width=True)
+        st.plotly_chart(create_market_overview_charts(df), use_container_width=True)
+        st.plotly_chart(create_top_performers_chart(df, 8), use_container_width=True)
     
     with tab2:
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.plotly_chart(create_sector_performance_chart(df), use_container_width=True)
-        
-        with col2:
-            st.plotly_chart(create_market_cap_bubble_chart(df), use_container_width=True)
+        st.plotly_chart(create_sector_performance_chart(df), use_container_width=True)
+        st.plotly_chart(create_market_cap_bubble_chart(df), use_container_width=True)
     
     with tab3:
         pe_chart = create_pe_ratio_analysis(df)
@@ -495,72 +510,57 @@ def main():
         else:
             st.info("Aucune donnée de ratio P/E disponible pour l'analyse")
         
-        # P/E Ratio statistics
+        # P/E Ratio statistics - Reduced 4 columns to 2
         if df['pe_ratio'].notna().any():
             pe_stats = df['pe_ratio'].describe()
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2 = st.columns(2)
             with col1:
                 st.metric("P/E Moyen", f"{pe_stats['mean']:.1f}")
+                st.metric("P/E Minimum", f"{pe_stats['min']:.1f}")
             with col2:
                 st.metric("P/E Médian", f"{pe_stats['50%']:.1f}")
-            with col3:
-                st.metric("P/E Minimum", f"{pe_stats['min']:.1f}")
-            with col4:
                 st.metric("P/E Maximum", f"{pe_stats['max']:.1f}")
     
     with tab4:
         st.plotly_chart(create_top_performers_chart(df, 15), use_container_width=True)
 
-    # Stock Watchlist with Enhanced Filtering
+    # Stock Watchlist with Enhanced Filtering - Stack filters vertically
     st.markdown("## 🔍 Watchlist des Actions")
     
-    # Range sliders for P/E and Market Cap
-    col1, col2, col3, col4 = st.columns(4)
+    search_query = st.text_input("🔎 Rechercher Actions", placeholder="Symbole ou Nom d'entreprise...")
+    selected_sector = st.selectbox("Secteur", ["Tous les Secteurs"] + sorted(df['sector'].unique().tolist()))
     
-    with col1:
-        search_query = st.text_input("🔎 Rechercher Actions", placeholder="Symbole ou Nom d'entreprise...")
+    # P/E Ratio Range Filter
+    pe_min = 0
+    pe_max = 50
+    if df['pe_ratio'].notna().any():
+        pe_min = int(df['pe_ratio'].min())
+        pe_max = int(df['pe_ratio'].max()) + 1
+    pe_range = st.slider(
+        "Ratio P/E",
+        min_value=pe_min,
+        max_value=pe_max,
+        value=(pe_min, pe_max),
+        help="Filtrer par fourchette de ratio Prix/Bénéfice"
+    )
     
-    with col2:
-        selected_sector = st.selectbox("Secteur", ["Tous les Secteurs"] + sorted(df['sector'].unique().tolist()))
-    
-    with col3:
-        # P/E Ratio Range Filter
-        pe_min = 0
-        pe_max = 50
-        if df['pe_ratio'].notna().any():
-            pe_min = int(df['pe_ratio'].min())
-            pe_max = int(df['pe_ratio'].max()) + 1
-        pe_range = st.slider(
-            "Ratio P/E",
-            min_value=pe_min,
-            max_value=pe_max,
-            value=(pe_min, pe_max),
-            help="Filtrer par fourchette de ratio Prix/Bénéfice"
-        )
-    
-    with col4:
-        # Market Cap Range Filter
-        market_cap_min = 0
-        market_cap_max = 50_000_000_000
-        if df['market_cap'].notna().any():
-            market_cap_min = int(df['market_cap'].min())
-            market_cap_max = int(df['market_cap'].max())
-        market_cap_range = st.slider(
-            "Capitalisation (Milliards)",
-            min_value=0,
-            max_value=int(market_cap_max / 1_000_000_000) + 1,
-            value=(0, int(market_cap_max / 1_000_000_000) + 1),
-            help="Filtrer par fourchette de capitalisation boursière"
-        )
+    # Market Cap Range Filter
+    market_cap_min = 0
+    market_cap_max = 50_000_000_000
+    if df['market_cap'].notna().any():
+        market_cap_min = int(df['market_cap'].min())
+        market_cap_max = int(df['market_cap'].max())
+    market_cap_range = st.slider(
+        "Capitalisation (Milliards)",
+        min_value=0,
+        max_value=int(market_cap_max / 1_000_000_000) + 1,
+        value=(0, int(market_cap_max / 1_000_000_000) + 1),
+        help="Filtrer par fourchette de capitalisation boursière"
+    )
 
-    # Additional filters
-    col5, col6 = st.columns(2)
-    
-    with col5:
-        performance_filter = st.selectbox("Performance", ["Toutes", "Haute Performance (>5%)", "Performance Positive (0-5%)", "Performance Négative", "Neutre"])
-    
-    with col6:
-        pe_exists_filter = st.selectbox("Disponibilité P/E", ["Toutes", "Avec P/E", "Sans P/E"])
+    # Additional filters - Stack vertically
+    performance_filter = st.selectbox("Performance", ["Toutes", "Haute Performance (>5%)", "Performance Positive (0-5%)", "Performance Négative", "Neutre"])
+    pe_exists_filter = st.selectbox("Disponibilité P/E", ["Toutes", "Avec P/E", "Sans P/E"])
 
     # Apply filters
     filtered_df = df.copy()
@@ -633,12 +633,14 @@ def main():
         elif sort_by == "Capitalisation Haut-Bas":
             filtered_df = filtered_df.sort_values('market_cap', ascending=False)
         
-        # Display cards in grid
+        # Display cards in grid - 2 columns for better mobile visibility
         filtered_stocks = filtered_df.to_dict('records')
-        cols = st.columns(4)
+        
+        cols = st.columns(2) 
         
         for index, stock in enumerate(filtered_stocks):
-            with cols[index % 4]:
+            # Use modulo 2 for 2 columns
+            with cols[index % 2]: 
                 render_stock_card(stock)
 
     # Footer with Copyright
@@ -654,5 +656,3 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
-
-
