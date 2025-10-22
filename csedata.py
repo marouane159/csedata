@@ -10,80 +10,73 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 
-  # Streamlit Page Setup
-st.set_page_config(layout="wide", page_title="CSE DATA ANALYTICS", page_icon="🇲🇦")
-    
+# --- Page config must be the first Streamlit command ---
+st.set_page_config(layout="wide", page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦")
 
 # --- Configuration & Data ---
 BASE_STOCKS = [
-     {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Construction"},
-    {"symbol": "TMA", "name": "TOTALENERGIES MARKETING MAROC", "sector": "Énergie"},
-    {"symbol": "TQM", "name": "TAQA MOROCCO", "sector": "Énergie"},
-    {"symbol": "NKL", "name": "ENNAKL SA", "sector": "Transport"},
-    {"symbol": "LHM", "name": "LAFARGEHOLCIM", "sector": "Construction"},
-    {"symbol": "UMR", "name": "UNIMER", "sector": "Agroalimentaire"},
-    {"symbol": "WAA", "name": "WAFA ASSURANCE", "sector": "Assurance"},
-    {"symbol": "ZDJ", "name": "ZELLIDJA S.A", "sector": "Mines"},
-    {"symbol": "MSA", "name": "SODEP MARSA MAROC", "sector": "Transport"},
-    {"symbol": "RDS", "name": "RESIDENCE DAR SAADA", "sector": "Construction"},
+    {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Matériaux et Construction"},
+    {"symbol": "TMA", "name": "TOTALENERGIES MARKETING MAROC", "sector": "Énergie, Mines, et Utilities"},
+    {"symbol": "TQM", "name": "TAQA MOROCCO", "sector": "Énergie, Mines, et Utilities"},
+    {"symbol": "NKL", "name": "ENNAKL SA", "sector": "Distribution et Services"},
+    {"symbol": "LHM", "name": "LAFARGEHOLCIM", "sector": "Matériaux et Construction"},
+    {"symbol": "UMR", "name": "UNIMER", "sector": "Industrie"},
+    {"symbol": "WAA", "name": "WAFA ASSURANCE", "sector": "Finance"},
+    {"symbol": "ZDJ", "name": "ZELLIDJA S.A", "sector": "Énergie, Mines, et Utilities"},
+    {"symbol": "MSA", "name": "SODEP MARSA MAROC", "sector": "Distribution et Services"},
     {"symbol": "CSR", "name": "COSUMAR", "sector": "Industrie"},
-    {"symbol": "CFG", "name": "CFG BANK", "sector": "Banque"},
-    {"symbol": "CMG", "name": "CMGP CAS", "sector": "Agriculture"},
-    {"symbol": "HPS", "name": "HPS", "sector": "Paiment"},
-    {"symbol": "S2M", "name": "S2M", "sector": "Paiment"},
-    {"symbol": "RIS", "name": "RISMA", "sector": "Hotel Management"},
+    {"symbol": "CFG", "name": "CFG BANK", "sector": "Finance"},
+    {"symbol": "CMG", "name": "CMGP CAS", "sector": "Industrie"},
+    {"symbol": "HPS", "name": "HPS", "sector": "Finance"},
+    {"symbol": "S2M", "name": "S2M", "sector": "Finance"},
+    {"symbol": "RIS", "name": "RISMA", "sector": "Industrie"},
     {"symbol": "DHO", "name": "DELTA HOLDING", "sector": "Industrie"},
-    {"symbol": "DWY", "name": "DISWAY", "sector": "Distribution éléctro"},
-    {"symbol": "SNA", "name": "STOKVIS NORD AFRIQUE", "sector": "Distribution service"},
-    {"symbol": "SNP", "name": "SNEP", "sector": "Process Industries"},
-    {"symbol": "STR", "name": "STROC INDUSTRIE", "sector": "Service Industriel"},
-    {"symbol": "INV", "name": "INVOLYS", "sector": "Service de Technologie"},
-    {"symbol": "MIC", "name": "MICRODATA", "sector": "Service de Technologie"},
-    {"symbol": "DYT", "name": "DISTY TECHNOLOGIES", "sector": "Service de destribution"},
-    {"symbol": "ADH", "name": "DOUJA PROM ADDOHA", "sector": "Immobilier"},
-    {"symbol": "IMO", "name": "IMMORENT INVEST", "sector": "Immobilier"},
-    {"symbol": "ADI", "name": "ALLIANCES", "sector": "Divers"},
+    {"symbol": "DWY", "name": "DISWAY", "sector": "Distribution et Services"},
+    {"symbol": "SNA", "name": "STOKVIS NORD AFRIQUE", "sector": "Distribution et Services"},
+    {"symbol": "SNP", "name": "SNEP", "sector": "Énergie, Mines, et Utilities"},
+    {"symbol": "INV", "name": "INVOLYS", "sector": "Distribution et Services"},
+    {"symbol": "MIC", "name": "MICRODATA", "sector": "Distribution et Services"},
+    {"symbol": "DYT", "name": "DISTY TECHNOLOGIES", "sector": "Distribution et Services"},
+    {"symbol": "ADH", "name": "DOUJA PROM ADDOHA", "sector": "Matériaux et Construction"},
+    {"symbol": "IMO", "name": "IMMORENT INVEST", "sector": "Matériaux et Construction"},
+    {"symbol": "ADI", "name": "ALLIANCES", "sector": "Matériaux et Construction"},
     {"symbol": "AFI", "name": "AFRIC INDUSTRIES", "sector": "Industrie"},
     {"symbol": "AFM", "name": "AFMA", "sector": "Finance"},
-    {"symbol": "AKT", "name": "AKDITAL S.A", "sector": "Santé"},
-    {"symbol": "ALM", "name": "ALUMINIUM DU MAROC", "sector": "Matériaux"},
-    {"symbol": "ARD", "name": "ARADEI CAPITAL", "sector": "Immobilier"},
-    {"symbol": "ATH", "name": "AUTO HALL", "sector": "Automobile"},
-    {"symbol": "ATL", "name": "ATLANTASANAD", "sector": "Distribution"},
-    {"symbol": "ATW", "name": "ATTIJARIWAFA BANK", "sector": "Banque"},
-    {"symbol": "BAL", "name": "BALIMA", "sector": "Distribution"},
-    {"symbol": "BCP", "name": "BANQUE CENTRALE POPULAIRE", "sector": "Banque"},
-    {"symbol": "CRS", "name": "CARTIER SAADA", "sector": "Distribution"},
-    {"symbol": "CIH", "name": "CREDIT IMMOBILIER ET HOTELIER", "sector": "Banque"},
-    {"symbol": "CMT", "name": "CIMENTS DU MAROC", "sector": "Matériaux"},
-    {"symbol": "COL", "name": "COLORADO", "sector": "Distribution"},
-    {"symbol": "CTM", "name": "COMPAGNIE DE TRANSPORTS AU MAROC", "sector": "Transport"},
+    {"symbol": "AKT", "name": "AKDITAL S.A", "sector": "Industrie"},
+    {"symbol": "ALM", "name": "ALUMINIUM DU MAROC", "sector": "Matériaux et Construction"},
+    {"symbol": "ARD", "name": "ARADEI CAPITAL", "sector": "Matériaux et Construction"},
+    {"symbol": "ATH", "name": "AUTO HALL", "sector": "Industrie"},
+    {"symbol": "ATL", "name": "ATLANTASANAD", "sector": "Distribution et Services"},
+    {"symbol": "ATW", "name": "ATTIJARIWAFA BANK", "sector": "Finance"},
+    {"symbol": "BAL", "name": "BALIMA", "sector": "Distribution et Services"},
+    {"symbol": "BCP", "name": "BANQUE CENTRALE POPULAIRE", "sector": "Finance"},
+    {"symbol": "CRS", "name": "CARTIER SAADA", "sector": "Distribution et Services"},
+    {"symbol": "CIH", "name": "CREDIT IMMOBILIER ET HOTELIER", "sector": "Finance"},
+    {"symbol": "CMT", "name": "CIMENTS DU MAROC", "sector": "Matériaux et Construction"},
+    {"symbol": "COL", "name": "COLORADO", "sector": "Distribution et Services"},
+    {"symbol": "CTM", "name": "COMPAGNIE DE TRANSPORTS AU MAROC", "sector": "Distribution et Services"},
     {"symbol": "DIM", "name": "DELATTRE LEVIVIER MAROC", "sector": "Industrie"},
-    {"symbol": "DRI", "name": "DARI COUSPATE", "sector": "Agroalimentaire"},
-    {"symbol": "EQD", "name": "EQDOM", "sector": "Immobilier"},
-    {"symbol": "FBR", "name": "FENIE BROSSETTE", "sector": "Distribution"},
-    {"symbol": "IAM", "name": "MAROC TELECOM", "sector": "Télécom"},
+    {"symbol": "DRI", "name": "DARI COUSPATE", "sector": "Industrie"},
+    {"symbol": "EQD", "name": "EQDOM", "sector": "Finance"},
+    {"symbol": "FBR", "name": "FENIE BROSSETTE", "sector": "Distribution et Services"},
+    {"symbol": "IAM", "name": "MAROC TELECOM", "sector": "Distribution et Services"},
     {"symbol": "INM", "name": "INDUSTRIE DU MAROC", "sector": "Industrie"},
-    {"symbol": "JET", "name": "JET CONTRACTORS", "sector": "Construction"},
-    {"symbol": "LES", "name": "LESIEUR CRISTAL", "sector": "Agroalimentaire"},
+    {"symbol": "JET", "name": "JET CONTRACTORS", "sector": "Matériaux et Construction"},
+    {"symbol": "LES", "name": "LESIEUR CRISTAL", "sector": "Industrie"},
     {"symbol": "MOX", "name": "MAGHREB OXYGENE", "sector": "Industrie"},
-    {"symbol": "MNG", "name": "MANAGEM", "sector": "Mines"},
-    {"symbol": "MUT", "name": "MUTANDIS", "sector": "Agroalimentaire"},
-    {"symbol": "RDS", "name": "RÉSIDENCES DAR SAADA", "sector": "Immobilier"},
-    {"symbol": "SID", "name": "SONASID", "sector": "Agroalimentaire"},
+    {"symbol": "MNG", "name": "MANAGEM", "sector": "Énergie, Mines, et Utilities"},
+    {"symbol": "MUT", "name": "MUTANDIS", "sector": "Industrie"},
+    {"symbol": "RDS", "name": "RÉSIDENCES DAR SAADA", "sector": "Matériaux et Construction"},
+    {"symbol": "SID", "name": "SONASID", "sector": "Industrie"},
     {"symbol": "SNP", "name": "SNEP", "sector": "Industrie"},
-    {"symbol": "SOT", "name": "SOTHEMA", "sector": "Pharma"},
+    {"symbol": "SOT", "name": "SOTHEMA", "sector": "Industrie"},
     {"symbol": "SRM", "name": "REALISATIONS MECANIQUES", "sector": "Industrie"},
     {"symbol": "STR", "name": "STROC INDUSTRIE", "sector": "Industrie"},
     {"symbol": "MDP", "name": "MED PAPER", "sector": "Industrie"},
-    {"symbol": "VCN", "name": "VICENNE", "sector": "Santé"},
+    {"symbol": "VCN", "name": "VICENNE", "sector": "Industrie"},
     {"symbol": "SMI", "name": "Société métallurgique d'imiter", "sector": "Finance"},
-    {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Banque"},
-    {"symbol": "REB", "name": "Rebab Company SA", "sector": "NA"},
-    {"symbol": "IBM", "name": "IBMaroc", "sector": "NA"},
-    
+    {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Finance"}
 ]
-
 
 # --- Parsing Helper Functions ---
 def _parse_price(text: str) -> float | None:
@@ -271,24 +264,41 @@ def render_stock_card(stock):
     is_loser = change < -0.005
     delta_color = "inverse" if is_loser else "normal" if is_gainer else "off"
     
-    with st.container(border=True):
-        st.markdown(f"**{stock['symbol']}** <span style='font-size: 0.75rem; color: #6B7280;'>({stock['sector']})</span>", unsafe_allow_html=True)
-        st.caption(f"{stock['name']}")
-        
-        col_price, col_change = st.columns(2)
-        with col_price:
-            st.metric(label="Prix", value=f"{stock['price']:.2f} MAD", label_visibility="collapsed")
-        with col_change:
-            st.metric(label="Changement", value=f"{abs(stock['percentChange']):.2f}%", 
-                     delta=f"{change:.2f} MAD", delta_color=delta_color, label_visibility="collapsed")
-        
-        col_mcap, col_pe = st.columns(2)
-        with col_mcap:
-            st.metric(label="Capitalisation", value=stock.get('market_cap_formatted', 'N/A'), label_visibility="visible")
-        with col_pe:
-            pe_ratio = stock.get('pe_ratio')
-            pe_display = f"{pe_ratio:.1f}" if pe_ratio is not None else "N/A"
-            st.metric(label="Ratio P/E", value=pe_display, label_visibility="visible")
+    # Use CSS for border instead of container border parameter
+    st.markdown("""
+        <style>
+            .stock-card {
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 12px;
+                margin: 8px 0;
+                background-color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="stock-card">', unsafe_allow_html=True)
+    
+    st.markdown(f"**{stock['symbol']}** <span style='font-size: 0.75rem; color: #6B7280;'>({stock['sector']})</span>", unsafe_allow_html=True)
+    st.caption(f"{stock['name']}")
+    
+    col_price, col_change = st.columns(2)
+    with col_price:
+        st.metric(label="Prix", value=f"{stock['price']:.2f} MAD", label_visibility="collapsed")
+    with col_change:
+        st.metric(label="Changement", value=f"{abs(stock['percentChange']):.2f}%", 
+                 delta=f"{change:.2f} MAD", delta_color=delta_color, label_visibility="collapsed")
+    
+    col_mcap, col_pe = st.columns(2)
+    with col_mcap:
+        st.metric(label="Capitalisation", value=stock.get('market_cap_formatted', 'N/A'), label_visibility="visible")
+    with col_pe:
+        pe_ratio = stock.get('pe_ratio')
+        pe_display = f"{pe_ratio:.1f}" if pe_ratio is not None else "N/A"
+        st.metric(label="Ratio P/E", value=pe_display, label_visibility="visible")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Advanced Visualization Functions ---
 def create_market_overview_charts(df):
@@ -372,8 +382,8 @@ def create_top_performers_chart(df, top_n=10):
     fig.update_layout(height=400, showlegend=False, title_text=f"Top {top_n} Performers")
     return fig
 
-# --- Main Advanced Dashboard ---
-def app():
+# --- Main app function ---
+def main():
     # Initialize Session State
     if 'stocks' not in st.session_state:
         st.session_state.stocks = load_stock_data()
@@ -390,7 +400,6 @@ def app():
         st.session_state.last_updated = datetime.now()
         st.session_state.is_loading = False
 
-  
     # Simple Clean CSS
     st.markdown("""
         <style>
@@ -420,12 +429,12 @@ def app():
     
     with col1:
         st.markdown('<div class="main-header">RISK NETWORK DATA ANALYTICS</div>', unsafe_allow_html=True)
-        st.markdown('<div class="risk-brand">RISK NETWORK</div>', unsafe_allow_html=True)
-        status_text = "🟢 Données TradingView en Direct" if st.session_state.is_live_data else "🟡 Données Simulées"
+        st.markdown('<div class="risk-brand">RISK NETWORK - Plateforme d\'Analyse des Marchés</div>', unsafe_allow_html=True)
+        status_text = "🟢 Données de RISK" if st.session_state.is_live_data else "🟡 Données Simulées"
         st.markdown(f"**{status_text}** | Dernière Mise à Jour: {st.session_state.last_updated.strftime('%H:%M:%S')}")
     
     with col3:
-        button_label = "🔄 Actualisation..." if st.session_state.is_loading else "Actualiser Données"
+        button_label = "🔄 Actualisation..." if st.session_state.is_loading else "Actualiser les données"
         st.button(button_label, on_click=refresh_data, disabled=st.session_state.is_loading, type="primary")
 
     st.markdown("---")
@@ -437,7 +446,7 @@ def app():
     df = pd.DataFrame(st.session_state.stocks)
     
     # Key Metrics Overview
-    st.markdown("## Aperçu du Marché")
+    st.markdown("Vue globale du marché")
     
     col1, col2, col3, col4, col5 = st.columns(5)
     
@@ -462,7 +471,7 @@ def app():
         st.metric("Actions avec P/E", f"{stocks_with_pe}/{len(df)}")
 
     # Advanced Charts Section
-    st.markdown("## Analytics Avancés")
+    st.markdown("## 📊 Analytics Avancés")
     
     tab1, tab2, tab3, tab4 = st.tabs(["Sentiment Marché", "Analyse Sectorielle", "Métriques Valorisation", "Top Performers"])
     
@@ -647,7 +656,6 @@ def app():
         unsafe_allow_html=True
     )
 
+# --- Run the app ---
 if __name__ == "__main__":
-    if 'is_live_data' not in st.session_state:
-        st.session_state.is_live_data = False 
-    app()
+    main()
