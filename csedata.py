@@ -264,39 +264,25 @@ def render_stock_card(stock):
     is_loser = change < -0.005
     delta_color = "inverse" if is_loser else "normal" if is_gainer else "off"
     
-    # Use CSS for border instead of container border parameter
-    st.markdown("""
-        <style>
-            .stock-card {
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 12px;
-                margin: 8px 0;
-                background-color: white;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    st.markdown('<div class="stock-card">', unsafe_allow_html=True)
-    
-    st.markdown(f"**{stock['symbol']}** <span style='font-size: 0.75rem; color: #6B7280;'>({stock['sector']})</span>", unsafe_allow_html=True)
-    st.caption(f"{stock['name']}")
-    
-    col_price, col_change = st.columns(2)
-    with col_price:
-        st.metric(label="Prix", value=f"{stock['price']:.2f} MAD", label_visibility="collapsed")
-    with col_change:
-        st.metric(label="Changement", value=f"{abs(stock['percentChange']):.2f}%", 
-                 delta=f"{change:.2f} MAD", delta_color=delta_color, label_visibility="collapsed")
-    
-    col_mcap, col_pe = st.columns(2)
-    with col_mcap:
-        st.metric(label="Capitalisation", value=stock.get('market_cap_formatted', 'N/A'), label_visibility="visible")
-    with col_pe:
-        pe_ratio = stock.get('pe_ratio')
-        pe_display = f"{pe_ratio:.1f}" if pe_ratio is not None else "N/A"
-        st.metric(label="Ratio P/E", value=pe_display, label_visibility="visible")
+    # Use a simple container without border parameter
+    with st.container():
+        st.markdown(f"**{stock['symbol']}** <span style='font-size: 0.75rem; color: #6B7280;'>({stock['sector']})</span>", unsafe_allow_html=True)
+        st.caption(f"{stock['name']}")
+        
+        col_price, col_change = st.columns(2)
+        with col_price:
+            st.metric(label="Prix", value=f"{stock['price']:.2f} MAD", label_visibility="collapsed")
+        with col_change:
+            st.metric(label="Changement", value=f"{abs(stock['percentChange']):.2f}%", 
+                     delta=f"{change:.2f} MAD", delta_color=delta_color, label_visibility="collapsed")
+        
+        col_mcap, col_pe = st.columns(2)
+        with col_mcap:
+            st.metric(label="Capitalisation", value=stock.get('market_cap_formatted', 'N/A'), label_visibility="visible")
+        with col_pe:
+            pe_ratio = stock.get('pe_ratio')
+            pe_display = f"{pe_ratio:.1f}" if pe_ratio is not None else "N/A"
+            st.metric(label="Ratio P/E", value=pe_display, label_visibility="visible")
     
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -659,3 +645,4 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
+
