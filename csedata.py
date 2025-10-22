@@ -10,6 +10,10 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 
+  # Streamlit Page Setup
+st.set_page_config(layout="wide", page_title="CSE DATA ANALYTICS", page_icon="🇲🇦")
+    
+
 # --- Configuration & Data ---
 BASE_STOCKS = [
      {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Construction"},
@@ -386,9 +390,7 @@ def app():
         st.session_state.last_updated = datetime.now()
         st.session_state.is_loading = False
 
-    # Streamlit Page Setup
-    st.set_page_config(layout="wide", page_title="CSE DATA ANALYTICS", page_icon="🇲🇦")
-    
+  
     # Simple Clean CSS
     st.markdown("""
         <style>
