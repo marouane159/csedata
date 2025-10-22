@@ -11,7 +11,6 @@ from plotly.subplots import make_subplots
 import numpy as np
 
 # --- Page config must be the first Streamlit command ---
-# Streamlit's default or "centered" is usually better for mobile.
 st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦")
 
 # --- Configuration & Data ---
@@ -264,13 +263,9 @@ def render_stock_card(stock):
     is_gainer = change > 0.005
     is_loser = change < -0.005
     
-    # --- FIX APPLIED HERE ---
     # Use "normal" color for both gainers and losers. 
-    # "normal" means positive delta is green, negative delta is red.
     delta_color = "normal" if (is_gainer or is_loser) else "off"
-    # --- END FIX ---
     
-    # Use CSS for border instead of container border parameter
     st.markdown("""
         <style>
             .stock-card {
@@ -286,6 +281,7 @@ def render_stock_card(stock):
     
     st.markdown('<div class="stock-card">', unsafe_allow_html=True)
     
+    # Ensure text inside the card is left-aligned as required for labels/symbols
     st.markdown(f"**{stock['symbol']}** <span style='font-size: 0.75rem; color: #6B7280;'>({stock['sector']})</span>", unsafe_allow_html=True)
     st.caption(f"{stock['name']}")
     
@@ -293,7 +289,6 @@ def render_stock_card(stock):
     with col_price:
         st.metric(label="Prix", value=f"{stock['price']:.2f} MAD", label_visibility="collapsed")
     with col_change:
-        # The delta value has the correct sign (positive/negative), so "normal" coloring will work.
         st.metric(label="Changement", value=f"{abs(stock['percentChange']):.2f}%", 
                     delta=f"{change:.2f} MAD", delta_color=delta_color, label_visibility="collapsed")
     
@@ -309,7 +304,6 @@ def render_stock_card(stock):
 
 # --- Advanced Visualization Functions (No change needed) ---
 def create_market_overview_charts(df):
-    # Market sentiment gauge
     avg_change = df['percentChange'].mean()
     
     fig_gauge = go.Figure(go.Indicator(
@@ -376,7 +370,7 @@ def create_top_performers_chart(df, top_n=10):
     top_gainers = df.nlargest(top_n, 'percentChange')
     top_losers = df.nsmallest(top_n, 'percentChange')
     
-    fig = make_subplots(rows=1, cols=2, subplot_titles=('Meilleurs Performers', 'Moins Bon Performers'))
+    fig = make_subplots(rows=1, cols=2, subplot_titles=('Les meilleures', 'Les pires'))
     
     fig.add_trace(go.Bar(x=top_gainers['percentChange'], y=top_gainers['symbol'],
                             orientation='h', marker_color='green', name='Gagnants'),
@@ -416,11 +410,13 @@ def main():
                 font-family: 'Inter', sans-serif;
             }
             
+            /* --- Title Centering & Justification --- */
             .main-header {
                 font-size: 2.5rem;
                 font-weight: 700;
                 color: #1f2937;
                 margin-bottom: 0.5rem;
+                text-align: center; 
             }
             
             .risk-brand {
@@ -428,7 +424,60 @@ def main():
                 font-weight: 600;
                 color: #6B7280;
                 margin-bottom: 1rem;
+                text-align: center; 
             }
+            
+            /* Center all section headers (st.markdown("## ...")) */
+            h2 {
+                width: 100%;
+                text-align: center;
+                margin-top: 1.5rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            /* Custom styling for the centered "Vue globale" title and container */
+            .global-overview-title {
+                width: 100%;
+                text-align: center;
+                padding: 5px 0;
+                margin-bottom: 1rem;
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #1f2937;
+                border: 1px solid #e0e0e0; /* Cadre autour du titre */
+                border-radius: 6px;
+                background-color: #f9fafb;
+            }
+            
+            /* Conteneur pour centrer les 4 métriques */
+            .centered-metrics-container {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+            /* Style pour forcer les colonnes Streamlit à se centrer (utiliser une colonne vide large) */
+            .metric-row {
+                width: 100%;
+            }
+
+            .status-line {
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            
+            /* Center the refresh button */
+            .stButton {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+            
+            /* Ensure Filters and Selectboxes stack vertically */
+            .stSelectbox, .stTextInput, .stSlider {
+                margin-bottom: 0.5rem;
+            }
+            
             /* Small screen optimization for metrics */
             .stMetric > div:nth-child(1) { /* Label */
                 font-size: 0.8rem;
@@ -438,22 +487,20 @@ def main():
             .stMetric > div:nth-child(2) > div:nth-child(1) { /* Value */
                 font-size: 1.2rem;
             }
+            
         </style>
     """, unsafe_allow_html=True)
 
-    # Header - Stack title and refresh button on mobile
-    col1, col3 = st.columns([3, 1])
-    
-    with col1:
-        st.markdown('<div class="main-header">RISK NETWORK DATA ANALYTICS</div>', unsafe_allow_html=True)
-        st.markdown('<div class="risk-brand">RISK NETWORK - Plateforme d\'Analyse des Marchés</div>', unsafe_allow_html=True)
-        status_text = "🟢 Données de RISK" if st.session_state.is_live_data else "🟡 Données Simulées"
-        st.markdown(f"**{status_text}** | Dernière Mise à Jour: {st.session_state.last_updated.strftime('%H:%M:%S')}")
-    
-    with col3:
-        st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
-        button_label = "🔄 Actualisation..." if st.session_state.is_loading else "Actualiser les données"
-        st.button(button_label, on_click=refresh_data, disabled=st.session_state.is_loading, type="primary", use_container_width=True)
+    # 1. ACTUALISER LES DONNÉES BUTTON (TOP)
+    button_label = "🔄 Actualisation..." if st.session_state.is_loading else "Actualiser les données"
+    st.button(button_label, on_click=refresh_data, disabled=st.session_state.is_loading, type="primary", use_container_width=True)
+
+
+    # 2. HEADER TEXT (CENTERED)
+    st.markdown('<div class="main-header">RISK NETWORK DATA ANALYTICS</div>', unsafe_allow_html=True)
+    st.markdown('<div class="risk-brand">BOURSE DE CASABLANCA</div>', unsafe_allow_html=True)
+    status_text = "🟢 Données de RISK" if st.session_state.is_live_data else "🟡 Données Simulées"
+    st.markdown(f"<div class='status-line'>**{status_text}** | Dernière Mise à Jour: {st.session_state.last_updated.strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -463,37 +510,50 @@ def main():
         
     df = pd.DataFrame(st.session_state.stocks)
     
-    # Key Metrics Overview - Reduced 5 columns to 3 for better mobile fit
-    st.markdown("Vue globale du marché")
+    # 3. KEY METRICS OVERVIEW (CENTERED TITLE, METRICS STACKED ON MOBILE)
     
-    col_a, col_b, col_c = st.columns(3) 
+    # Titre "Vue globale du marché" centré et encadré
+    st.markdown("<div class='global-overview-title'>Vue globale du marché</div>", unsafe_allow_html=True)
     
-    with col_a:
-        total_mcap = df['market_cap'].sum() if df['market_cap'].notna().any() else 0
-        st.metric("Capitalisation Totale", format_market_cap(total_mcap))
+    # Centrer les 4 métriques en utilisant des colonnes pour pousser le contenu au centre.
+    # On utilise des colonnes Streamlit pour créer un conteneur centré pour les 2x2 métriques.
+    # Les colonnes sont définies comme [espace_gauche, metriques_container, espace_droite]
+    # L'espace gauche/droite doit être égal pour centrer les métriques.
     
-    with col_b:
-        avg_change = df['percentChange'].mean()
-        st.metric("Changement Moyen", f"{avg_change:.2f}%")
+    # Définir la largeur pour centrer (e.g., 20% d'espace de chaque côté pour les 4 métriques)
+    # Dans Streamlit, il est plus facile de centrer en limitant la taille de l'espace de contenu.
+    
+    # Ligne 1 : Capitalisation Totale et Changement Moyen
+    col_l1_a, col_l1_b, col_l1_c = st.columns([1, 4, 1]) 
+    
+    with col_l1_b:
+        col_a, col_b = st.columns(2)
+        with col_a:
+            total_mcap = df['market_cap'].sum() if df['market_cap'].notna().any() else 0
+            st.metric("Capitalisation Totale", format_market_cap(total_mcap))
         
-    with col_c:
-        stocks_with_pe = df['pe_ratio'].notna().sum()
-        st.metric("Actions avec P/E", f"{stocks_with_pe}/{len(df)}")
+        with col_b:
+            avg_change = df['percentChange'].mean()
+            st.metric("Changement Moyen", f"{avg_change:.2f}%")
+        
+    # Ligne 2 : Actions en Hausse et Actions en Baisse
+    col_l2_a, col_l2_b, col_l2_c = st.columns([1, 4, 1]) 
     
-    col_d, col_e, _ = st.columns([1, 1, 1]) 
-    
-    with col_d:
-        gainers = len(df[df['percentChange'] > 0])
-        st.metric("Actions en Hausse", gainers)
-    
-    with col_e:
-        losers = len(df[df['percentChange'] < 0])
-        st.metric("Actions en Baisse", losers)
+    with col_l2_b:
+        col_d, col_e = st.columns(2)
+        with col_d:
+            gainers = len(df[df['percentChange'] > 0])
+            st.metric("Actions en Hausse", gainers)
+        
+        with col_e:
+            losers = len(df[df['percentChange'] < 0])
+            st.metric("Actions en Baisse", losers)
 
-    # Advanced Charts Section - Charts stack vertically for mobile
-    st.markdown("Analytics Avancés")
+    # 4. ADVANCED CHARTS SECTION (CENTERED TITLES, STACKED TABS)
+    st.markdown("---")
+    st.markdown("RISK ANALYTICS")
     
-    tab1, tab2, tab3, tab4 = st.tabs(["Sentiment Marché", "Analyse Sectorielle", "Métriques Valorisation", "Top Performers"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Sentiment Marché", "Analyse Sectorielle", "Métriques Valorisation", "BEST/WORST"])
     
     with tab1:
         st.plotly_chart(create_market_overview_charts(df), use_container_width=True)
@@ -510,8 +570,8 @@ def main():
         else:
             st.info("Aucune donnée de ratio P/E disponible pour l'analyse")
         
-        # P/E Ratio statistics - Reduced 4 columns to 2
         if df['pe_ratio'].notna().any():
+            st.markdown("### Statistiques Clés du Ratio P/E")
             pe_stats = df['pe_ratio'].describe()
             col1, col2 = st.columns(2)
             with col1:
@@ -524,10 +584,11 @@ def main():
     with tab4:
         st.plotly_chart(create_top_performers_chart(df, 15), use_container_width=True)
 
-    # Stock Watchlist with Enhanced Filtering - Stack filters vertically
-    st.markdown("## 🔍 Watchlist des Actions")
+    # 5. STOCK WATCHLIST (CENTERED TITLE, VERTICAL FILTERS)
+    st.markdown("---")
+    st.markdown("MARKET DATA")
     
-    search_query = st.text_input("🔎 Rechercher Actions", placeholder="Symbole ou Nom d'entreprise...")
+    search_query = st.text_input("Rechercher Actions", placeholder="Symbole ou Nom d'entreprise...")
     selected_sector = st.selectbox("Secteur", ["Tous les Secteurs"] + sorted(df['sector'].unique().tolist()))
     
     # P/E Ratio Range Filter
@@ -643,7 +704,7 @@ def main():
             with cols[index % 2]: 
                 render_stock_card(stock)
 
-    # Footer with Copyright
+    # Footer with Copyright (CENTERED)
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #6B7280; font-size: 0.9rem; padding: 1rem;'>"
