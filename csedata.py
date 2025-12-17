@@ -77,9 +77,9 @@ BASE_STOCKS =  [
     {"symbol": "MDP", "name": "MED PAPER", "sector": "Industrie"},
     {"symbol": "VCN", "name": "VICENNE", "sector": "Santé"},
     {"symbol": "SMI", "name": "Société métallurgique d'imiter", "sector": "Finance"},
-    {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Banque"}
-    {"symbol": "CAP", "name": "Cash Plus", "sector": "Fintech"}
-    {"symbol": "GTM", "name": "SGTM", "sector": "BTP"}
+    {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Banque"},
+    {"symbol": "CAP", "name": "Cash Plus", "sector": "Fintech"},
+    {"symbol": "GTM", "name": "SGTM", "sector": "BTP"},
 ]
 # --- Parsing Helper Functions (No change needed) ---
 def _parse_price(text: str) -> float | None:
@@ -720,4 +720,5 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
+
 
