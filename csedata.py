@@ -15,8 +15,7 @@ st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦
 
 # --- Configuration & Data ---
 BASE_STOCKS = [
-    {"symbol": "GTM", "name": "Societe Generale des Travaux du Maroc", "sector": "Matériaux et Construction"},
-    {"symbol": "CAP", "name": "Cash plus S.A", "sector": "Finance"},
+    
     {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Matériaux et Construction"},
     {"symbol": "TMA", "name": "TOTALENERGIES MARKETING MAROC", "sector": "Énergie, Mines, et Utilities"},
     {"symbol": "TQM", "name": "TAQA MOROCCO", "sector": "Énergie, Mines, et Utilities"},
@@ -719,4 +718,5 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
+
 
