@@ -127,7 +127,7 @@ BASE_STOCKS = [
     {"symbol": "SMI", "name": "Société métallurgique d'imiter", "sector": "Finance"},
     {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Finance"},
     {"symbol": "GTM", "name": "SGTM", "sector": "BTP"},
-    {"symbol": "CAP", "name": "Cash Plus", "sector": "Finance"}
+    {"symbol": "CAP", "name": "Cash Plus", "sector": "Finance"},
 ]
 
 # --- Parsing Helper Functions (No change needed) ---
@@ -769,3 +769,4 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
+
