@@ -15,7 +15,6 @@ st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦
 
 # --- Configuration & Data ---
 BASE_STOCKS = [
-	
     {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Matériaux et Construction"},
     {"symbol": "TMA", "name": "TOTALENERGIES MARKETING MAROC", "sector": "Énergie, Mines, et Utilities"},
     {"symbol": "TQM", "name": "TAQA MOROCCO", "sector": "Énergie, Mines, et Utilities"},
@@ -382,7 +381,7 @@ def create_top_performers_chart(df, top_n=10):
                     row=1, col=2)
     
     fig.update_yaxes(automargin=True) 
-    fig.update_layout(height=450, showlegend=False, title_text=f"Top {top_n} Performers")
+    fig.update_layout(height=450, showlegend=False, title_text=f"BEST/WORST {top_n} marchés")
     return fig
 
 # --- Main app function ---
@@ -499,7 +498,7 @@ def main():
 
     # 2. HEADER TEXT (CENTERED)
     st.markdown('<div class="main-header">RISK NETWORK DATA ANALYTICS</div>', unsafe_allow_html=True)
-    st.markdown('<div class="risk-brand">For education purposes only</div>', unsafe_allow_html=True)
+    st.markdown('<div class="risk-brand">BVC STATS</div>', unsafe_allow_html=True)
     status_text = "🟢 Données de RISK" if st.session_state.is_live_data else "🟡 Données Simulées"
     st.markdown(f"<div class='status-line'>**{status_text}** | Dernière Mise à Jour: {st.session_state.last_updated.strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
@@ -709,7 +708,7 @@ def main():
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #6B7280; font-size: 0.9rem; padding: 1rem;'>"
-        "Tous droits réservés - <strong>www.risk.ma - PAS UN CIF*</strong><br>"
+        "Tous droits réservés - <strong>www.risk.ma</strong><br>"
         "<span style='font-size: 0.8rem;'>RISK NETWORK</span>"
         "</div>", 
         unsafe_allow_html=True
@@ -718,6 +717,3 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
-    
-
-
