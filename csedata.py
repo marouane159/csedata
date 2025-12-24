@@ -15,8 +15,7 @@ st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦
 
 # --- Configuration & Data ---
 BASE_STOCKS = [
-    {"symbol": "GTM", "name": "SGTM", "sector": "BTP"},
-    {"symbol": "CAP", "name": "CASH PLUS", "sector": "Finance"},
+   
     {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Matériaux et Construction"},
     {"symbol": "TMA", "name": "TOTALENERGIES MARKETING MAROC", "sector": "Énergie, Mines, et Utilities"},
     {"symbol": "TQM", "name": "TAQA MOROCCO", "sector": "Énergie, Mines, et Utilities"},
@@ -78,6 +77,9 @@ BASE_STOCKS = [
     {"symbol": "VCN", "name": "VICENNE", "sector": "Industrie"},
     {"symbol": "SMI", "name": "Société métallurgique d'imiter", "sector": "Finance"},
     {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Finance"},
+    {"symbol": "CAP", "name": "Cash Plus", "sector": "Finance"},
+    {"symbol": "GTM", "name": "SGTM", "sector": "BTP"},
+   
 ]
 
 # --- Parsing Helper Functions (No change needed) ---
@@ -720,5 +722,6 @@ def main():
 if __name__ == "__main__":
     main()
     
+
 
 
