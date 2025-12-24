@@ -10,61 +10,13 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 
-# ====================================================================
-# CONFIG PAGE (DOIT ÊTRE LA TOUTE PREMIÈRE COMMANDE STREAMLIT)
-# ====================================================================
-
-st.set_page_config(
-    page_title="Analyse de Portefeuille | RISK.ma",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# ====================================================================
-# BARRE D'AVERTISSEMENT FIXE
-# ====================================================================
-
-st.markdown(
-    """
-    <div style="background-color: #ff9800; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 16px; border-radius: 8px; margin-bottom: 20px;">
-        ⚠️ AVERTISSEMENT IMPORTANT : Je ne suis pas agréé par l’AMMC. 
-        Cet outil est strictement éducatif et informatif. 
-        Il ne constitue en aucun cas un conseil en investissement ou une recommandation. 
-        Toutes les données sont indicatives. Vous êtes seul responsable de vos décisions. 
-        La bourse comporte des risques de perte en capital.
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# ====================================================================
-# ACCÈS PAR MOT DE PASSE
-# ====================================================================
-
-def check_password():
-    if st.session_state.get("password_correct", False):
-        return True
-    with st.form("password_form"):
-        st.title("🔒 Accès réservé aux membres RISK")
-        st.write("Entrez le code d'accès.")
-        pwd = st.text_input("Code", type="password")
-        if st.form_submit_button("Valider"):
-            if pwd == "LASTDANCE":
-                st.session_state["password_correct"] = True
-                st.rerun()
-            else:
-                st.error("Code incorrect.")
-    st.stop()
-
-if not check_password():
-    st.stop()
-
 # --- Page config must be the first Streamlit command ---
 st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦")
 
 # --- Configuration & Data ---
 BASE_STOCKS = [
+    {"symbol": "GTM", "name": "SGTM", "sector": "BTP"},
+    {"symbol": "CAP", "name": "CASH PLUS", "sector": "Finance"},
     {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Matériaux et Construction"},
     {"symbol": "TMA", "name": "TOTALENERGIES MARKETING MAROC", "sector": "Énergie, Mines, et Utilities"},
     {"symbol": "TQM", "name": "TAQA MOROCCO", "sector": "Énergie, Mines, et Utilities"},
@@ -125,9 +77,7 @@ BASE_STOCKS = [
     {"symbol": "MDP", "name": "MED PAPER", "sector": "Industrie"},
     {"symbol": "VCN", "name": "VICENNE", "sector": "Industrie"},
     {"symbol": "SMI", "name": "Société métallurgique d'imiter", "sector": "Finance"},
-    {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Finance"},
-    {"symbol": "GTM", "name": "SGTM", "sector": "BTP"},
-    {"symbol": "CAP", "name": "Cash Plus", "sector": "Finance"},
+    {"symbol": "CDM", "name": "Crédit du Maroc", "sector": "Finance"}
 ]
 
 # --- Parsing Helper Functions (No change needed) ---
@@ -769,4 +719,3 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
-
