@@ -15,6 +15,8 @@ st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦
 
 # --- Configuration & Data ---
 BASE_STOCKS = [
+    {"symbol": "GTM", "name": "SGTM", "sector": "BTP"},
+    {"symbol": "CAP", "name": "CASH PLUS", "sector": "Finance"},
     {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Matériaux et Construction"},
     {"symbol": "TMA", "name": "TOTALENERGIES MARKETING MAROC", "sector": "Énergie, Mines, et Utilities"},
     {"symbol": "TQM", "name": "TAQA MOROCCO", "sector": "Énergie, Mines, et Utilities"},
@@ -498,7 +500,7 @@ def main():
 
     # 2. HEADER TEXT (CENTERED)
     st.markdown('<div class="main-header">RISK NETWORK DATA ANALYTICS</div>', unsafe_allow_html=True)
-    st.markdown('<div class="risk-brand">BOURSE DE CASABLANCA</div>', unsafe_allow_html=True)
+    st.markdown('<div class="risk-brand">For education purposes only</div>', unsafe_allow_html=True)
     status_text = "🟢 Données de RISK" if st.session_state.is_live_data else "🟡 Données Simulées"
     st.markdown(f"<div class='status-line'>**{status_text}** | Dernière Mise à Jour: {st.session_state.last_updated.strftime('%H:%M:%S')}</div>", unsafe_allow_html=True)
 
@@ -718,3 +720,4 @@ def main():
 if __name__ == "__main__":
     main()
     
+
