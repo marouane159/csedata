@@ -13,6 +13,42 @@ import numpy as np
 # --- Page config must be the first Streamlit command ---
 st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦")
 
+
+def main() -> None:
+       # --- ACCESS CONTROL START ---
+    
+    # Check if user is logged in via session state
+    if 'authenticated' not in st.session_state:
+        st.session_state['authenticated'] = False
+
+    # Define the required code
+    CORRECT_CODE = "LASTDANCE"
+
+    # If not authenticated, show login form
+    if not st.session_state['authenticated']:
+        st.title("🔒 Accès Restreint | RISK NETWORK")
+        st.markdown("---")
+        
+        # Centered input form
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.header("Veuillez entrer votre code membre")
+            # Password input is hidden
+            entered_code = st.text_input("Code Membre", type="password", key="access_code_input")
+            
+            # Button to check the code
+            if st.button("Accéder à la Heatmap", use_container_width=True):
+                if entered_code == CORRECT_CODE:
+                    st.session_state['authenticated'] = True
+                    # FIX: Replace st.experimental_rerun() with st.rerun()
+                    st.rerun() # Rerun the script to show the main content 
+                else:
+                    st.error("Code incorrect. Accès refusé.")
+            
+        st.stop() # Stop execution if not authenticated
+    
+    # --- ACCESS CONTROL END ---
+
 # --- Configuration & Data ---
 BASE_STOCKS = [
     
@@ -718,5 +754,6 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
+
 
 
