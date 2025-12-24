@@ -15,8 +15,6 @@ st.set_page_config(page_title="RISK NETWORK DATA ANALYTICS", page_icon="🇲🇦
 
 # --- Configuration & Data ---
 BASE_STOCKS = [
-    {"symbol": "GTM", "name": "SGTM", "sector": "BTP"},
-    {"symbol": "CAP", "name": "CASH PLUS", "sector": "Finance"},
     {"symbol": "TGC", "name": "TRAVAUX GENERAUX DE CONSTRUCTIONS", "sector": "Matériaux et Construction"},
     {"symbol": "TMA", "name": "TOTALENERGIES MARKETING MAROC", "sector": "Énergie, Mines, et Utilities"},
     {"symbol": "TQM", "name": "TAQA MOROCCO", "sector": "Énergie, Mines, et Utilities"},
@@ -383,7 +381,7 @@ def create_top_performers_chart(df, top_n=10):
                     row=1, col=2)
     
     fig.update_yaxes(automargin=True) 
-    fig.update_layout(height=450, showlegend=False, title_text=f"BEST/WORST {top_n} marchés")
+    fig.update_layout(height=450, showlegend=False, title_text=f"Top {top_n} Performers")
     return fig
 
 # --- Main app function ---
@@ -710,7 +708,7 @@ def main():
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; color: #6B7280; font-size: 0.9rem; padding: 1rem;'>"
-        "Tous droits réservés - <strong>www.risk.ma</strong><br>"
+        "Tous droits réservés - <strong>www.risk.ma - PAS UN CIF*</strong><br>"
         "<span style='font-size: 0.8rem;'>RISK NETWORK</span>"
         "</div>", 
         unsafe_allow_html=True
@@ -719,3 +717,4 @@ def main():
 # --- Run the app ---
 if __name__ == "__main__":
     main()
+    
